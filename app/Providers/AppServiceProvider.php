@@ -25,6 +25,8 @@ class AppServiceProvider extends ServiceProvider
     {
         Validator::extend('card_number', function ($attribute, $value, $parameters) {
 
+            $value = convertToEnglishNumber($value);
+
             if (!(strlen($value) == 16)) {
                 return false;
             }

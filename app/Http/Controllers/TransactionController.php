@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+
 use App\Services\CardService;
 use App\Services\AccountService;
 use Illuminate\Support\Facades\DB;
 use App\Services\TransactionService;
 use App\Http\Requests\DoTransactionRequest;
+use App\Http\Requests\TransactionsIndexRequest;
+use App\Http\Requests\TransactionalUsersRequest;
 
 class TransactionController extends Controller
 {
@@ -77,7 +79,6 @@ class TransactionController extends Controller
                 $this->transaction_service->completeTransaction($request_data['transaction']);
                 $this->transaction_service->completeTransaction($request_data['wage_transaction']);
             });
-
         } catch (\Throwable $th) {
 
             $descriptions = $th->getMessage() ?? "";
@@ -87,5 +88,19 @@ class TransactionController extends Controller
         }
 
         return apiResponse();
+    }
+
+    function index(TransactionsIndexRequest $requeset)
+    {
+        $request_data = $requeset->validated();
+        return $this->transaction_service->indexTransactions($request_data);
+    }
+
+
+    function transactionalUsers(TransactionalUsersRequest $request)
+    {
+        $request_data = $request->validated();
+        $transactional_users =  $this->transaction_service->transactionalUsersReport($request_data);
+        return apiResponse(true, $transactional_users);
     }
 }

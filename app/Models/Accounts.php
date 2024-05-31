@@ -21,4 +21,24 @@ class Accounts extends Model
     {
         return $this->belongsTo(AccountStatuses::class, 'status_id', 'id');
     }
+
+    /**
+     * Get all of the cards for the Accounts
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function cards()
+    {
+        return $this->hasMany(Cards::class, 'account_id', 'id');
+    }
+
+    /**
+     * Get the user that owns the Accounts
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
 }

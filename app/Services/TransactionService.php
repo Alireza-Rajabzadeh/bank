@@ -6,7 +6,7 @@ use App\Models\Transactions;
 use Exception;
 use App\Services\Traits\ShowServiceTrait;
 use App\Repositories\TransactionRepository;
-use Illuminate\Validation\ValidationException;
+
 
 class TransactionService
 {
@@ -114,7 +114,7 @@ class TransactionService
             $wage_transaction_data
         );
 
-     
+
         return [
             "transaction" => $transaction,
             "wage_transaction" => $wage_transaction
@@ -122,30 +122,46 @@ class TransactionService
     }
 
 
-
-
-    function viewcardsReport($index_data)
+    function transactionalUsersReport($inputs)
+    {
+        $limit_index = $inputs['limit_index'] ?? 3;
+        $transactions_limit_index = $inputs['transactions_limit_index'] ?? 10;
+        $start_index = $inputs['start_index'] ?? 0;
+        $transactionals_users = $this->transaction_repository->transactionalUsers($limit_index, $start_index);
+        foreach ($transactionals_users as $index => $record) {
+            unset($transactionals_users[$index]->password);
+            unset($transactionals_users[$index]->remember_token);
+            $transactionals_users[$index]->transactions = $this->transaction_repository->usertransactions($record->id, $transactions_limit_index);
+        };
+        return $transactionals_users;
+    }
+    function indexTransactions($index_data)
     {
 
         $search_data = $this->getDefaultSearchParams($index_data);
         $date_clause_columns = $this->getDefaultDateParams($index_data);
 
         $search_data["count_relations"] = [
-            "logs",
-            "user"
+
         ];
         $search_data["relations"] = [
-            "user"
+            'card',
+            'card.account',
+            'card.account.user',
         ];
 
         $where_clause_columns = [
             "id",
-            "user_id"
+            "status_id",
+            "type_id",
+            "origin_card_id",
+            "destination_card_id",
+            "parrent_transaction_id",
         ];
 
         $like_clause_columns = [
-            "card",
-            "shortner_card"
+            "ammount",
+            "description"
         ];
 
 

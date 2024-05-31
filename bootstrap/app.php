@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Foundation\Application;
 
+use App\Http\Middleware\PrepareRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -17,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
 
+        $middleware->append(PrepareRequest::class);
         $middleware->alias([
             'auth' => \App\Http\Middleware\AuthMiddleware::class,
         ]);
@@ -30,7 +32,15 @@ return Application::configure(basePath: dirname(__DIR__))
                 if ($e instanceof ValidationException) {
                     return apiResponse(false, [], $e->getMessage(), 422);
                 }
-                return apiResponse(false, [], $e->getMessage(), 500);
+
+                $error = env("APP_DEBUG") ? [
+                    "file" => $e->getFile(),
+                    "line" => $e->getLine()
+                ] : [];
+
+
+                $status_code = (empty($e->getCode()) || $e->getCode() == 0) ? 500 : $e->getCode();
+                return apiResponse(false, $error, $e->getMessage(), $status_code);
             }
         });
     })->create();

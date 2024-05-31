@@ -1,6 +1,13 @@
 <?php
 
-
+function convertToEnglishNumber($number)
+{
+    $persian = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+    $arabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+    $english = range(0, 9);
+    $number = str_replace($arabic, $english, $number);
+    return str_replace($persian, $english, $number);
+}
 
 function apiResponse($status = true, $response = [], $message = [], $status_code = 200)
 {

@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,10 +18,15 @@ class AuthMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         $credentials = [
-            'email' => 'wehner.cesar@example.net',
+            'email' => 'test@example.com',
             'password' => 'password',
         ];
-        Auth::attempt($credentials);
-        return $next($request);
+
+
+        if (Auth::attempt($credentials)) {
+            return $next($request);
+        }
+
+        throw new Exception(__("validation.auth_faield"), 401);
     }
 }

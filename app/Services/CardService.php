@@ -44,9 +44,23 @@ class CardService
                     'card_number' => $inputs['card_number']
                 ]
             )]);
-
         }
         return true;
+    }
+
+    function shouldExist($inputs)
+    {
+        $card = $this->isExist($inputs);
+
+        if (empty($card)) {
+            throw \Illuminate\Validation\ValidationException::withMessages([__(
+                'validation.card_not_defiend',
+                [
+                    'card_number' => $inputs['card_number']
+                ]
+            )]);
+        }
+        return $card;
     }
 
 

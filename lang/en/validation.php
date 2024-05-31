@@ -195,5 +195,11 @@ return [
 
     'account_already_defiend' => 'The account :account_number already present.',
     'card_already_defiend' => 'The card :card_number already present.',
+    'card_not_defiend' => 'The card :card_number not present.',
+    'same_open_transaction_in' => 'Same transaction is still open in last :minute min.',
+    'auth_faield' => 'access denied',
+    'account_not_defiend' => 'account not found',
+    'account_status_is' => 'account status is :status_name',
+    'not_enouph_credit' => 'Not enouph credit',
 
 ];

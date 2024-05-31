@@ -15,7 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('status_id')->references('id')->on('transaction_statuses')->default(1);
             $table->foreignId('type_id')->references('id')->on('transaction_types')->default(1);
-            $table->foreignId('parrent_transaction_id')->references('id')->on('transactions')->nullable();
+
+            $table->unsignedBigInteger('parrent_transaction_id')->nullable();
+            $table->foreign('parrent_transaction_id')->references('id')->on('transactions');
 
             $table->foreignId('origin_card_id')->references('id')->on('cards');
 

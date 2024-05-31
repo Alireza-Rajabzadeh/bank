@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Exception;
+use App\Models\Accounts;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use App\Repositories\AccountRepository;
@@ -35,9 +36,9 @@ class AccountService
 
     function shouldNotExist($inputs)
     {
-        $link = $this->isExist($inputs);
+        $account = $this->isExist($inputs);
 
-        if ($link->count() > 0) {
+        if (!empty($account)) {
             throw \Illuminate\Validation\ValidationException::withMessages([__(
                 'account_already_defiend',
                 [
@@ -48,6 +49,61 @@ class AccountService
         return true;
     }
 
+    function shouldExist($inputs)
+    {
+        $account = $this->isExist($inputs);
+
+        if (empty($account)) {
+            throw \Illuminate\Validation\ValidationException::withMessages([__(
+                'validation.account_not_defiend'
+            )]);
+        }
+        return $account;
+    }
+
+
+    function hasEnoughCreditAndPermission($inputs, $amount)
+    {
+        $account = $this->shouldExist($inputs);
+
+        if (!$account->status->is_allowed) {
+
+            throw new Exception(__("validation.account_status_is", ["status_name" => $account->status->name]), 422);
+        }
+
+        if ($account->credit < ($amount + env("BANK_WAGE", 500))) {
+            throw new Exception(__("validation.not_enouph_credit"), 422);
+        }
+
+        return $account;
+    }
+
+
+    function decreaseCredit(Accounts $account, $ammount)
+    {
+        $search = [
+            "where" => [
+                "id" => $account->id
+            ]
+        ];
+        $update_data = [
+            'credit' => (intval($account->credit) - intval($ammount))
+        ];
+        return $this->account_repository->update($search, $update_data);
+    }
+
+    function icreaseCredit(Accounts $account, $ammount)
+    {
+        $search = [
+            "where" => [
+                "id" => $account->id
+            ]
+        ];
+        $update_data = [
+            'credit' => (intval($account->credit) + intval($ammount))
+        ];
+        return $this->account_repository->update($search, $update_data);
+    }
 
 
     function insert($inputs)
@@ -70,7 +126,7 @@ class AccountService
     }
 
 
-    function viewLinksReport($index_data)
+    function viewaccountsReport($index_data)
     {
 
         $search_data = $this->getDefaultSearchParams($index_data);
@@ -90,8 +146,8 @@ class AccountService
         ];
 
         $like_clause_columns = [
-            "link",
-            "shortner_link"
+            "account",
+            "shortner_account"
         ];
 
 
@@ -104,8 +160,8 @@ class AccountService
         $search_data['date'] = $date_clause;
         $search_data['like'] = $like_clause;
 
-        $links = $this->account_repository->index($search_data);
+        $accounts = $this->account_repository->index($search_data);
 
-        return $links;
+        return $accounts;
     }
 }

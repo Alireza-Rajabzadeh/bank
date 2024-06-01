@@ -2,8 +2,7 @@
 
 namespace App\Repositories;
 
-use Illuminate\Support\Facades\DB;
-use App\Exceptions\GeneralException;
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -23,6 +22,11 @@ abstract class BaseRepository
     public function setModelRepository(Model $model)
     {
         $this->model = $model;
+    }
+
+    public function getModelRepository()
+    {
+        return $this->model;
     }
 
     /**
@@ -66,7 +70,7 @@ abstract class BaseRepository
 
         if (!empty($input['relations'])) {
             foreach ($input['relations'] as $relation) {
-                $query = $query->with([$relation])->withCount("logs");
+                $query = $query->with([$relation]);
             }
         }
 
@@ -82,12 +86,6 @@ abstract class BaseRepository
             }
         }
 
-        if (!empty($input['group_by'])) {
-            foreach ($input['group_by'] as $group_by_culomn) {
-
-                $query = $query->withCount("logs");
-            }
-        }
 
         if (!empty($input['date']['from_date']) || !empty($input['date']['to_date'])) {
             if (!empty($input['date']['from_date']) && empty($input['date']['to_date'])) {
@@ -109,6 +107,8 @@ abstract class BaseRepository
         }
         return $query->get($input['columns']);
     }
+
+
 
     /**
      * Search in table and prepare response details like count.
@@ -140,6 +140,43 @@ abstract class BaseRepository
         return $result;
     }
 
+    /**
+     * Search in table.
+     *
+     * @param  array  $search : filter fields
+     * @param  array  $update : update data
+     */
+    public function update($search, $update)
+    {
+
+        $search['exception'] ??= true;
+
+        $update = array_filter($update);
+        $search['with_trashed'] ??= false;
+        $query = $this->search($search, true);
+
+        if ($query->count() > 1) {
+            throw new Exception(__('messages.cant_update_more_than_one_record'), 403);
+        }
+        if ($search['with_trashed']) {
+            $query = $query->withTrashed();
+        }
+        foreach ($update as $key => $value) {
+
+            if ($value == "empty") {
+                $update[$key] = null;
+            }
+        }
+        $update_result = $query->update(
+            $update
+        );
+
+        if ((!$query) && $search['exception']) {
+            throw new ModelNotFoundException(__('messages.public.error.not_found'));
+        }
+        return $query->get();
+    }
+
     public function insert($input)
     {
 
@@ -150,5 +187,50 @@ abstract class BaseRepository
             }
         }
         return $this->model->create($input);
+    }
+
+    public function delete($delete_inputs)
+    {
+        $query = $this->search($delete_inputs, true);
+        // foreach ($query->get() as $record) {
+        //     ($record->delete());
+        // }
+        return $query->delete();
+    }
+
+    public function forceDelete($delete_inputs)
+    {
+        $query = $this->search($delete_inputs, true);
+        return $query->forcedelete();
+    }
+
+    public function first($input, $fail = false)
+    {
+        $query = $this->search($input, true)->get();
+
+        if ($fail) {
+            $query->firstOrFail();
+        }
+
+        return $query->first();
+    }
+
+    public function find($input, $fail = false)
+    {
+        $query = $this->search($input, true);
+        if ($fail) {
+            $query->findOrFail();
+        }
+        return $query->find();
+    }
+
+    public function updateOrCreateRepository($input)
+    {
+        return $this->model::updateOrCreate($input['condition'], $input['input']);
+    }
+
+    public function get()
+    {
+        $this->model::all();
     }
 }

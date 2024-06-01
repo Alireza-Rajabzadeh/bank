@@ -1,0 +1,27 @@
+ asiatech_inquiry_without_shaskam :
+    $arr = array(
+        'interfacetype' => $interfacetype,
+        'phone' => $phone,
+        'vspid' => 1,
+        'checkOtherPap' => true,
+    );
+
+
+asiatech_inquiry_with_shaskam :
+	    $arr_otherpap_false = array(
+        'interfacetype' => $interfacetype,
+        'phone' => $phone,
+        'vspid' => 1,
+        'checkOtherPap' => false,
+    );
+
+
+inquiry_with_shaskam :
+
+        $arr_otherpap_false = array(
+        'interfacetype' => $interfacetype,
+        'phone' => $phone,
+        'vspid' => 1,
+        'checkOtherPap' => true,
+        'bmsPriorityCheck' => 'low',
+    );

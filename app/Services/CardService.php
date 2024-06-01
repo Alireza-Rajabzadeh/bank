@@ -2,9 +2,6 @@
 
 namespace App\Services;
 
-use Exception;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Auth;
 use App\Repositories\CardRepository;
 use App\Services\Traits\ShowServiceTrait;
 use Illuminate\Validation\ValidationException;

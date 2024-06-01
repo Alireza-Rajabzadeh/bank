@@ -16,19 +16,20 @@ class DatabaseSeeder extends Seeder
     {
         $this->command->info('Creating sample users...');
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // User::factory()->create([
+        //     'name' => 'Test User',
+        //     'email' => 'test@example.com',
+        // ]);
 
 
-        User::factory(10)->create();
+        // User::factory(10)->create();
 
         $this->call([
             AccountAndCartStatuses::class,
             AccountAndCardSeeder::class,
             TransactionTypesSeeder::class,
             TransactionStatusesSeeder::class,
+            SmsTemplatesSeeder::class,
         ]);
     }
 }

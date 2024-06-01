@@ -12,8 +12,9 @@ Route::group(['prefix' => '/client/', 'middleware' => 'auth'], function () {
     });
 });
 
-
 Route::group(['prefix' => '/transactions', 'middleware' => 'auth'], function () {
     Route::get('/', [TransactionController::class, 'index'])->name('transactions-list');
     Route::get('/users    ', [TransactionController::class, 'transactionalUsers'])->name('transactional-users');
 });
+
+

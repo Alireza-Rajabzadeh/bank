@@ -25,6 +25,7 @@ class TransactionalUsersRequest extends FormRequest
             "limit_index"=>"nullable|integer",
             "start_index"=>"nullable|integer",
             "transactions_limit_index"=>"nullable|integer",
+            "from_date"=>"nullable|date",
         ];
     }
 }

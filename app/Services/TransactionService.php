@@ -102,7 +102,7 @@ class TransactionService
 
         $wage_transaction_data = [
             "status_id" => 1,
-            "type_id" => 1,
+            "type_id" => 2,
             'parrent_transaction_id' => $transaction->id,
             'origin_card_id' => $inputs['origin_card']->id ?? $inputs['origin_card_id'],
             'destination_card_id' => env("BANK_WAGE_ACCOUNT_ID", 1),
@@ -127,7 +127,8 @@ class TransactionService
         $limit_index = $inputs['limit_index'] ?? 3;
         $transactions_limit_index = $inputs['transactions_limit_index'] ?? 10;
         $start_index = $inputs['start_index'] ?? 0;
-        $transactionals_users = $this->transaction_repository->transactionalUsers($limit_index, $start_index);
+        $from_date = $inputs['from_date'] ?? date("Y-m-d H:i:s", strtotime("-10 minutes"));
+        $transactionals_users = $this->transaction_repository->transactionalUsers($limit_index, $start_index, $from_date);
         foreach ($transactionals_users as $index => $record) {
             unset($transactionals_users[$index]->password);
             unset($transactionals_users[$index]->remember_token);
@@ -141,9 +142,7 @@ class TransactionService
         $search_data = $this->getDefaultSearchParams($index_data);
         $date_clause_columns = $this->getDefaultDateParams($index_data);
 
-        $search_data["count_relations"] = [
-
-        ];
+        $search_data["count_relations"] = [];
         $search_data["relations"] = [
             'card',
             'card.account',
